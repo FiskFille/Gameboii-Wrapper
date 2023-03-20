@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group 'com.fiskmods'
+version project.version
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://maven.pkg.jetbrains.space/fiskfille/p/main/fiskmods/"
+        credentials {
+            username = "$spaceUsername"
+            password = "$spacePassword"
+        }
+    }
+}
+
+configurations {
+    required
+}
+
+dependencies {
+    required 'com.fiskmods:gameboii:' + project.gameboiiVersion
+    required group: 'javazoom', name: 'jlayer', version: '1.0.1'
+    required group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
+    required group: 'com.googlecode.soundlibs', name: 'tritonus-share', version: '0.3.7.4'
+    configurations.implementation.extendsFrom(configurations.required)
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = rootProject.name
+            version = version
+            from components.java
+
+            pom {
+                name = 'Gameboii Wrapper'
+                description = 'Lightweight wrapper for running the Gameboii system outside of Minecraft.'
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username = "$spaceUsername"
+                password = "$spacePassword"
+            }
+            url = "https://maven.pkg.jetbrains.space/fiskfille/p/main/fiskmods"
+        }
+    }
+}
+
+task runnableJar(type: Jar) {
+    classifier = 'runnable'
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes "Class-Path": "."
+        attributes "Main-Class": "com.fiskmods.gameboii.wrapper.Main"
+    }
+    from {
+        configurations.required.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
+
+test {
+    useJUnitPlatform()
+}
