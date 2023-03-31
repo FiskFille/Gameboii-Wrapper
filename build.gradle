@@ -6,6 +6,11 @@ plugins {
 group 'com.fiskmods'
 version project.version
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     mavenCentral()
     maven {
