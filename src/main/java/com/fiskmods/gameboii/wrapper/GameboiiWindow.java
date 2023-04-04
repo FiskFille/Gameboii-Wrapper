@@ -17,7 +17,9 @@ import java.util.stream.IntStream;
 
 public class GameboiiWindow extends JPanel implements Runnable, KeyListener, IDisplayScreen
 {
-    private static JFrame window = new JFrame();
+    private static final JFrame WINDOW = new JFrame();
+
+    public static boolean f11Fullscreen;
 
     public static int width, prevWidth;
     public static int height, prevHeight;
@@ -25,21 +27,18 @@ public class GameboiiWindow extends JPanel implements Runnable, KeyListener, IDi
     public static int defaultHeight;
 
     private Thread thread;
-    public static boolean f11Fullscreen = false;
 
-    public static int ticksPlayed = 0;
-    public static int tempTicks = 0;
-    public static int ticks = 0;
+    public static int ticks;
 
     private BufferedImage displayCanvas;
-    private Cartridge selectedCartridge;
+
+    private final Cartridge selectedCartridge;
     private IGame game;
 
     private static GameboiiWindow instance;
 
     public GameboiiWindow(Cartridge cartridge, int width, int height)
     {
-        super();
         GameboiiWindow.width = width;
         GameboiiWindow.height = height;
         GameboiiWindow.defaultWidth = width;
@@ -60,6 +59,7 @@ public class GameboiiWindow extends JPanel implements Runnable, KeyListener, IDi
     private void init()
     {
         Engine.init(new GameboiiWrapper(), this);
+        Engine.reloadResources();
         game = Engine.get(selectedCartridge);
     }
 
@@ -205,41 +205,41 @@ public class GameboiiWindow extends JPanel implements Runnable, KeyListener, IDi
 
         if (is != null)
         {
-            window.setIconImage(ImageIO.read(is));
+            WINDOW.setIconImage(ImageIO.read(is));
         }
 
         int width = 920;
         int height = 480;
-        window.setTitle("Gameboii");
-        window.setContentPane(new GameboiiWindow(cartridge, width, height));
-        window.setLocationRelativeTo(null);
-        window.setLocation(window.getX() - (width / 2), window.getY() - (height / 2));
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(true);
-        window.pack();
-        window.setVisible(true);
+        WINDOW.setTitle("Gameboii");
+        WINDOW.setContentPane(new GameboiiWindow(cartridge, width, height));
+        WINDOW.setLocationRelativeTo(null);
+        WINDOW.setLocation(WINDOW.getX() - (width / 2), WINDOW.getY() - (height / 2));
+        WINDOW.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        WINDOW.setResizable(true);
+        WINDOW.pack();
+        WINDOW.setVisible(true);
 
         Runtime.getRuntime().addShutdownHook(new Thread(GameboiiWrapper::onShutdown));
     }
 
     public static void setF11FullScreen()
     {
-        GraphicsDevice gd = window.getGraphicsConfiguration().getDevice();
+        GraphicsDevice gd = WINDOW.getGraphicsConfiguration().getDevice();
         Dimension dim = gd.getDefaultConfiguration().getBounds().getSize();
         f11Fullscreen = !f11Fullscreen;
 
         if (f11Fullscreen)
         {
-            window.setResizable(false);
+            WINDOW.setResizable(false);
             // window.setBounds(0, -20, dim.width, dim.height + 20);
-            window.setPreferredSize(new Dimension(dim.width, dim.height));
-            window.setExtendedState(Frame.MAXIMIZED_BOTH);
+            WINDOW.setPreferredSize(new Dimension(dim.width, dim.height));
+            WINDOW.setExtendedState(Frame.MAXIMIZED_BOTH);
         }
         else
         {
-            window.setResizable(true);
-            window.setPreferredSize(new Dimension(1024, 512));
-            window.setExtendedState(Frame.NORMAL);
+            WINDOW.setResizable(true);
+            WINDOW.setPreferredSize(new Dimension(1024, 512));
+            WINDOW.setExtendedState(Frame.NORMAL);
         }
     }
 }

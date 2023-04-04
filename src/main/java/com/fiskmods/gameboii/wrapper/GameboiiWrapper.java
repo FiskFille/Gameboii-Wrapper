@@ -5,8 +5,6 @@ import com.fiskmods.gameboii.Engine;
 import com.fiskmods.gameboii.GameboiiSystem;
 import com.fiskmods.gameboii.sound.ISoundDispatcher;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class GameboiiWrapper extends GameboiiSystem
@@ -21,7 +19,7 @@ public class GameboiiWrapper extends GameboiiSystem
     @Override
     public void quit()
     {
-        System.exit(-1);
+        System.exit(0);
     }
 
     @Override
@@ -49,16 +47,15 @@ public class GameboiiWrapper extends GameboiiSystem
     }
 
     @Override
-    public BufferedImage loadImage(String path) throws IOException
+    public InputStream getInputStream(Cartridge cartridge, String path)
     {
-        InputStream in = Main.class.getResourceAsStream("/assets/" + path);
-        return in != null ? ImageIO.read(in) : null;
+        return Main.class.getResourceAsStream("/assets/" + cartridge.id + "/" + path);
     }
 
     @Override
-    public ISoundDispatcher loadSoundData(String path) throws IOException
+    public ISoundDispatcher loadSoundData(Cartridge cartridge, String path) throws IOException
     {
-        InputStream in = Main.class.getResourceAsStream("/assets/sounds/" + path + ".mp3");
+        InputStream in = getInputStream(cartridge, "sounds/" + path + ".mp3");
         return in != null ? SoundDispatcher.read(new ByteArrayInputStream(copyInputStream(in))) : null;
     }
 
@@ -85,6 +82,7 @@ public class GameboiiWrapper extends GameboiiSystem
             out.write(buffer, 0, len);
         }
 
+        in.close();
         out.flush();
         return out.toByteArray();
     }
